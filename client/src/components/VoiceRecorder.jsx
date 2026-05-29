@@ -55,9 +55,11 @@ export default function VoiceRecorder({ onRecordingReady, disabled = false }) {
         streamRef.current?.getTracks().forEach((track) => track.stop());
       };
 
-      timerRef.current = window.setInterval(() => setDuration((value) => value + 1), 1000);
       recorder.start();
       setIsRecording(true);
+      timerRef.current = window.setInterval(() => {
+        setDuration((prev) => prev + 1);
+      }, 1000);
     } catch (err) {
       window.clearInterval(timerRef.current);
       if (streamRef.current) {
@@ -75,12 +77,6 @@ export default function VoiceRecorder({ onRecordingReady, disabled = false }) {
 
       setRecorderError(friendlyMessage);
     }
-    timerRef.current = window.setInterval(
-      () => setDuration((value) => value + 1),
-      1000,
-    );
-    recorder.start();
-    setIsRecording(true);
   }
 
   function stopRecording() {
@@ -150,13 +146,11 @@ export default function VoiceRecorder({ onRecordingReady, disabled = false }) {
       </div>
 
       {recorderError && (
-        <div className="mt-4 flex items-center gap-2 rounded-md border border-coral/40 bg-coral/10 p-3 text-sm font-semibold text-ink">
+        <div className="mt-4 rounded-md border border-coral/40 bg-coral/10 p-3 text-sm font-semibold text-ink flex items-center gap-2">
           <CircleAlert size={18} aria-hidden="true" className="text-coral" />
           <span>{recorderError}</span>
         </div>
       )}
-
-      <div className="mt-4 flex items-center gap-2 text-sm text-ink/60">
       <div className="mt-4 flex items-center gap-2 text-sm text-ink/60 dark:text-muted">
         <Upload size={16} aria-hidden="true" />
         Upload starts after you press “Clone voice”.
