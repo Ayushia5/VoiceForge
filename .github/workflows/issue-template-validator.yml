@@ -150,8 +150,9 @@ jobs:
               const successBody =
                 `${marker}\n` +
                 `## Issue Received\n\n` +
-                `Hi @${username}, thank you for opening this issue. Your template looks good, and the maintainer team will review it soon.\n\n` +
-                `Please wait for a maintainer to confirm the scope and assign the issue before starting work.`;
+                `Hi @${username}, thank you for opening this issue with the correct template.\n\n` +
+                `Your issue is now in the maintainer review queue. A maintainer will check the scope, priority, and readiness, then assign it to a contributor when it is ready.\n\n` +
+                `Please wait for maintainer confirmation before starting work.`;
 
               if (existing) {
                 await github.rest.issues.updateComment({

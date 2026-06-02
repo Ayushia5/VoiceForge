@@ -43,15 +43,18 @@ VoiceForge accepts contributions through GSSoC, NSOC, SSOC, and ELUSOC. Program 
 - Use a Conventional Commits PR title, for example `feat: add voice preview` or `fix: handle empty recording`.
 - Sign-offs are encouraged with `git commit --signoff`. Missing sign-offs receive a friendly reminder, not an automatic block.
 
-Issues and pull requests that use the required template are assigned to their author automatically and receive the matching program label.
+Issues and pull requests that use the required template receive the matching program label and enter maintainer review. Maintainers assign issues after confirming scope and readiness.
 
 Issues or pull requests that skip the required template will receive a `needs-template` label and an automated comment asking for updates before review. Issues that need more detail may also receive `needs-quality`.
 
-To claim an open issue that has no assignee, comment:
+To request assignment on an open issue, comment with one of these commands:
 
 ```text
 -assign
+/assign
 ```
+
+Polite assignment requests such as "please assign this issue to me" or "I would like to work on this" are also accepted, but the short commands are preferred.
 
 ## Good First Issues
 
