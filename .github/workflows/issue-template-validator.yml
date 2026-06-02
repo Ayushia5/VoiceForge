@@ -72,19 +72,6 @@ jobs:
               }
             }
 
-            async function assignAuthor() {
-              try {
-                await github.rest.issues.addAssignees({
-                  owner,
-                  repo,
-                  issue_number,
-                  assignees: [username]
-                });
-              } catch (error) {
-                core.warning(`Could not assign @${username}: ${error.message}`);
-              }
-            }
-
             const programs = [
               { name: 'GSSoC', label: 'gssoc26', pattern: /\bGSSoC\b/i },
               { name: 'NSOC', label: 'nsoc26', pattern: /\bNSOC\b/i },
@@ -160,12 +147,26 @@ jobs:
             );
 
             if (problems.length === 0) {
-              await assignAuthor();
+              const successBody =
+                `${marker}\n` +
+                `## Issue Received\n\n` +
+                `Hi @${username}, thank you for opening this issue with the correct template.\n\n` +
+                `Your issue is now in the maintainer review queue. A maintainer will check the scope, priority, and readiness, then assign it to a contributor when it is ready.\n\n` +
+                `Please wait for maintainer confirmation before starting work.`;
+
               if (existing) {
-                await github.rest.issues.deleteComment({
+                await github.rest.issues.updateComment({
                   owner,
                   repo,
-                  comment_id: existing.id
+                  comment_id: existing.id,
+                  body: successBody
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number,
+                  body: successBody
                 });
               }
               return;

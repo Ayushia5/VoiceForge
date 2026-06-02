@@ -2,7 +2,7 @@
 name: GSSoC Feature Request
 about: Suggest a new feature or improvement for VoiceForge
 title: "feat: "
-labels: enhancement
+labels: ""
 assignees: ""
 ---
 

@@ -2,7 +2,7 @@
 name: ELUSOC Bug Report
 about: Report a bug or unexpected behavior
 title: "[BUG] "
-labels: bug
+labels: ""
 ---
 
 ## 🚀 Program

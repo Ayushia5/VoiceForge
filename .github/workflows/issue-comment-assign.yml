@@ -1,4 +1,4 @@
-name: Issue Comment Assignment
+name: Issue Assignment Request
 
 on:
   issue_comment:
@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  assign:
+  request-assignment:
     if: |
       github.event.issue.pull_request == null &&
       github.event.issue.state == 'open' &&
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Assign issue to commenter
+      - name: Respond to assignment request
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -32,7 +32,35 @@ jobs:
             const issue_number = issue.number;
             const username = comment.user.login;
 
-            if ((comment.body || '').trim().toLowerCase() !== '-assign') {
+            function isAssignmentRequest(text) {
+              const normalized = (text || '')
+                .toLowerCase()
+                .replace(/\s+/g, ' ')
+                .trim();
+
+              const requestPatterns = [
+                /^-assign$/,
+                /^\/assign$/,
+                /\bassign me\b/,
+                /\bassign it to me\b/,
+                /\bassign this issue to me\b/,
+                /\bplease assign\b/,
+                /\bcan you assign\b/,
+                /\bcould you assign\b/,
+                /\bkindly assign\b/,
+                /\bi want to work on this\b/,
+                /\bi would like to work on this\b/,
+                /\bi'd like to work on this\b/,
+                /\bcan i work on this\b/,
+                /\bmay i work on this\b/,
+                /\bi am interested in working on this\b/,
+                /\bi'm interested in working on this\b/
+              ];
+
+              return requestPatterns.some(pattern => pattern.test(normalized));
+            }
+
+            if (!isAssignmentRequest(comment.body)) {
               return;
             }
 
@@ -42,31 +70,14 @@ jobs:
                 owner,
                 repo,
                 issue_number,
-                body: `Hi @${username}, this issue is already assigned to ${assigned}.`
+                body: `Hi @${username}, thank you for your interest.\n\nThis issue is currently assigned to ${assigned}. Please do not start work on it unless a maintainer reassigns it.\n\nIf there is no progress or response from the assigned contributor within the expected time, maintainers may reopen the assignment queue. Until then, please look for another open issue where your contribution can move faster.`
               });
               return;
             }
 
-            try {
-              await github.rest.issues.addAssignees({
-                owner,
-                repo,
-                issue_number,
-                assignees: [username]
-              });
-
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number,
-                body: `Assigned to @${username}. Thanks for picking this up.`
-              });
-            } catch (error) {
-              core.warning(`Could not assign @${username}: ${error.message}`);
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number,
-                body: `Hi @${username}, I could not assign this issue automatically. A maintainer can assign it manually.`
-              });
-            }
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body: `Hi @${username}, thank you for wanting to work on this issue.\n\nYour assignment request has been noted. A maintainer will review the issue scope and assign it when it is ready.\n\nPlease wait for maintainer approval before starting work. In the meantime, feel free to explore other open issues too.`
+            });

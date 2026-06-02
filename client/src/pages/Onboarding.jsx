@@ -12,6 +12,8 @@ export default function Onboarding({ onReady }) {
   const isCloning = status === "cloning";
   const hasApiKey = Boolean(localStorage.getItem("voiceforge:elevenlabsApiKey")?.trim());
 
+  const currentStep = successProfile ? 2 : recording ? 1 : 0;
+
   async function handleClone() {
     if (!recording) return;
     const profile = await cloneVoice(recording, voiceName);
@@ -24,7 +26,7 @@ export default function Onboarding({ onReady }) {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.18em] text-mint">
-              Step 1 of 3
+              Step {currentStep + 1} of 3
             </p>
             <h2 className="mt-2 text-3xl font-bold">
               Create your voice profile
@@ -42,7 +44,7 @@ export default function Onboarding({ onReady }) {
             {["Record", "Clone", "Call"].map((step, index) => (
               <div
                 key={step}
-                className={`h-2 rounded-full ${index === 0 ? "bg-coral" : "bg-white/25"}`}
+                className={`h-2 rounded-full ${index <= currentStep ? "bg-coral" : "bg-white/25"}`}
                 title={step}
               />
             ))}
