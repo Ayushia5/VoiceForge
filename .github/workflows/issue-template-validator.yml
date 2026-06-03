@@ -5,6 +5,7 @@ on:
     types: [opened, edited]
 
 permissions:
+  contents: read
   issues: write
 
 concurrency:
@@ -83,6 +84,22 @@ jobs:
               } catch (error) {
                 if (error.status !== 404) throw error;
               }
+            }
+
+            async function getReviewerMentions() {
+              try {
+                const { data } = await github.rest.repos.getContent({
+                  owner,
+                  repo,
+                  path: '.github/CODEOWNERS'
+                });
+                const decoded = Buffer.from(data.content || '', data.encoding || 'base64').toString('utf8');
+                const mentions = [...new Set(decoded.match(/@[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.-]+)?/g) || [])];
+                if (mentions.length > 0) return mentions.join(' ');
+              } catch (error) {
+                core.warning(`Could not read CODEOWNERS for maintainer notifications: ${error.message}`);
+              }
+              return `@${owner}`;
             }
 
             for (const label of ['duplicate', 'not needed', 'out of scope', 'go ahead', 'needs maintainer review', 'ready to work', 'stale-assignment', 'priority: low', 'priority: medium', 'priority: high', 'level: easy', 'level: medium', 'level: hard']) {
@@ -167,6 +184,7 @@ jobs:
             );
 
             if (problems.length === 0) {
+              const reviewerMentions = await getReviewerMentions();
               const successBody =
                 `${marker}\n` +
                 `## Issue Intake Passed\n\n` +
@@ -177,7 +195,9 @@ jobs:
                 `| Program template | ${matchedProgram.name} detected |\n` +
                 `| Issue type | ${isBugTemplate ? 'Bug report' : 'Feature request'} |\n` +
                 `| Detail level | Ready for maintainer review |\n` +
+                `| Maintainer ping | ${reviewerMentions} |\n` +
                 `| Next step | Maintainer assignment |\n\n` +
+                `${reviewerMentions}, this issue is ready for maintainer review. Please check whether it should be marked \`go ahead\`, \`duplicate\`, \`not needed\`, \`out of scope\`, or assigned with priority/difficulty labels.\n\n` +
                 `Please wait for maintainer confirmation before starting work. Assignment requests are welcome, but work should begin only after assignment.\n\n` +
                 `VoiceForge automation`;
 
