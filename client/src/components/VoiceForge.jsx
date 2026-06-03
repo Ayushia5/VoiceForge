@@ -105,6 +105,20 @@ export default function VoiceForge() {
 
   const charsLeft = MAX_CHARS - inputText.length;
 
+  function getCounterColor() {
+    if (charsLeft < 50)  return "text-red-500";
+    if (charsLeft < 100) return "text-orange-500";
+    if (charsLeft < 200) return "text-yellow-500";
+    return "text-neutral-400 dark:text-neutral-500";
+  }
+
+  function getTextareaBorder() {
+    if (charsLeft < 50)  return "border-red-300 dark:border-red-800";
+    if (charsLeft < 100) return "border-orange-300 dark:border-orange-800";
+    if (charsLeft < 200) return "border-yellow-300 dark:border-yellow-800";
+    return "border-neutral-200 dark:border-border";
+  }
+
   return (
     <div className="flex h-screen overflow-hidden bg-white font-sans antialiased dark:bg-black">
       <SpeechHistory
@@ -161,7 +175,7 @@ export default function VoiceForge() {
             <span
               className={[
                 "text-xs tabular-nums",
-                charsLeft < 50 ? "text-red-500" : "text-neutral-400 dark:text-neutral-500",
+                getCounterColor(),
               ].join(" ")}
               aria-live="polite"
             >
@@ -186,7 +200,7 @@ export default function VoiceForge() {
               "dark:placeholder:text-neutral-600",
               "focus:border-blue-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-200",
               "dark:focus:bg-black dark:focus:ring-blue-500/30",
-              charsLeft < 50 ? "border-red-300 dark:border-red-800" : "border-neutral-200 dark:border-border",
+              getTextareaBorder(),
             ].join(" ")}
             rows={6}
           />
