@@ -104,6 +104,15 @@ export default function VoiceForge() {
   }, [handleSpeak]);
 
   const charsLeft = MAX_CHARS - inputText.length;
+  const hasAnnouncedRef = useRef(false);
+  const warningTextRef = useRef("");
+
+  if (charsLeft < 50 && !hasAnnouncedRef.current) {
+    hasAnnouncedRef.current = true;
+    warningTextRef.current = `Warning: only ${charsLeft} characters remaining.`;
+  } else if (charsLeft >= 50) {
+    hasAnnouncedRef.current = false;
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-white font-sans antialiased dark:bg-black">
@@ -167,6 +176,11 @@ export default function VoiceForge() {
             >
               {inputText.length} / {MAX_CHARS}
             </span>
+            {charsLeft < 50 && (
+              <div className="sr-only" aria-live="assertive">
+                {warningTextRef.current}
+              </div>
+            )}
           </div>
 
           <textarea
