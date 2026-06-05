@@ -235,7 +235,7 @@ jobs:
               if (!sectionMatch || typeof sectionMatch.index !== 'number') return '';
 
               const sectionStart = sectionMatch.index + sectionMatch[0].length;
-              const nextHeadingMatch = body.slice(sectionStart).match(/^\\s*#{1,6}\\s+.+$/m);
+              const nextHeadingMatch = body.slice(sectionStart).match(/^\s*#{1,6}\s+.+$/m);
               const sectionEnd = nextHeadingMatch && typeof nextHeadingMatch.index === 'number'
                 ? sectionStart + nextHeadingMatch.index
                 : body.length;
