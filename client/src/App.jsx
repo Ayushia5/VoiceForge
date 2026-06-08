@@ -120,7 +120,7 @@ export default function App() {
       </main>
 
       
-      <Footer onNavigate={selectTab} />
+      <Footer onNavigate={selectTab} tabs={tabs} />
     </div>
   );
 }

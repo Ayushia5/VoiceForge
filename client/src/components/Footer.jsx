@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Footer = ({ onNavigate }) => {
+const Footer = ({ onNavigate, tabs }) => {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -83,13 +83,13 @@ const Footer = ({ onNavigate }) => {
               Quick Links
             </h3>
             <nav className="flex flex-col gap-2 text-sm text-neutral-400">
-              {["onboarding", "call", "compose", "settings"].map((tab) => (
+              {tabs.map((tab) => (
                 <button
-                  key={tab}
-                  onClick={() => onNavigate?.(tab)}
+                  key={tab.id}
+                  onClick={() => onNavigate?.(tab.id)}
                   className="text-left capitalize hover:text-white transition-colors duration-150 bg-transparent border-none cursor-pointer p-0"
                 >
-                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  {tab.label}
                 </button>
               ))}
             </nav>
