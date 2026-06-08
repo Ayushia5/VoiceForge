@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Footer = () => {
+const Footer = ({ onNavigate }) => {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -83,11 +83,15 @@ const Footer = () => {
               Quick Links
             </h3>
             <nav className="flex flex-col gap-2 text-sm text-neutral-400">
-              <a href="#onboarding" className="hover:text-white transition-colors duration-150">Onboarding</a>
-              <a href="#call" className="hover:text-white transition-colors duration-150">Call</a>
-              <a href="#compose" className="hover:text-white transition-colors duration-150">Compose</a>
-              <a href="#settings" className="hover:text-white transition-colors duration-150">Settings</a>
-              <a href="#history" className="hover:text-white transition-colors duration-150">History</a>
+              {["onboarding", "call", "compose", "settings"].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => onNavigate?.(tab)}
+                  className="text-left capitalize hover:text-white transition-colors duration-150 bg-transparent border-none cursor-pointer p-0"
+                >
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </button>
+              ))}
             </nav>
           </div>
 
@@ -113,10 +117,11 @@ const Footer = () => {
               >
                 Report a Bug
               </a>
-              <a href="/privacy" className="hover:text-white transition-colors duration-150">
+              {/* /privacy and /terms routes to be implemented in a follow-up */}
+              <a href="#" className="hover:text-white transition-colors duration-150">
                 Privacy Policy
               </a>
-              <a href="/terms" className="hover:text-white transition-colors duration-150">
+              <a href="#" className="hover:text-white transition-colors duration-150">
                 Terms of Service
               </a>
             </nav>
