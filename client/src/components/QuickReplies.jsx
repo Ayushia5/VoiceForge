@@ -13,7 +13,6 @@ const DEFAULT_QUICK_REPLIES = [
 ];
 
 const STORAGE_KEY = "vf_quick_replies";
-const MAX_REPLIES = 20;
 
 export function QuickReplies({ onSelect }) {
   const [replies, setReplies] = useState(() => {
@@ -23,7 +22,7 @@ export function QuickReplies({ onSelect }) {
       const parsed = JSON.parse(saved);
       if (
         Array.isArray(parsed) &&
-        parsed.every((r) => r && typeof r.phrase === "string" && typeof r.label === "string")
+        parsed.every((item) => item && typeof item.phrase === "string" && typeof item.label === "string")
       ) {
         return parsed;
       }
@@ -42,11 +41,10 @@ export function QuickReplies({ onSelect }) {
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(replies));
-    } catch (error) {
-      showToast("Could not save changes. Storage may be full.", "error");
-
+    } catch {
+      console.error('Failed to persist quick replies to localStorage');
     }
-  }, [replies, showToast]);
+  }, [replies]);
 
   const handleAdd = (e) => {
     e.preventDefault();
@@ -54,10 +52,6 @@ export function QuickReplies({ onSelect }) {
 
     if (!cleanPhrase) {
       showToast("Phrase cannot be empty", "error");
-      return;
-    }
-    if (replies.length >= MAX_REPLIES) {
-      showToast("Maximum of 20 quick replies allowed", "error");
       return;
     }
 
@@ -196,13 +190,13 @@ export function QuickReplies({ onSelect }) {
           </form>
         )}
 
-{replies.length === 0 && !isAdding && (
-  <p className="text-xs text-neutral-400 dark:text-neutral-500 italic">
-    {isEditing 
-      ? 'No quick replies. Click "Add" to create one.'
-      : 'No quick replies. Click "Customize" to add.'}
-  </p>
-)}
+        {replies.length === 0 && !isAdding && (
+          <p className="text-xs text-neutral-400 dark:text-neutral-500 italic">
+            {isEditing 
+              ? 'No quick replies. Click "Add" to create one.'
+              : 'No quick replies. Click "Customize" to add.'}
+          </p>
+        )}
       </div>
 
       <ToastContainer toasts={toasts} />
