@@ -52,9 +52,9 @@ React.useEffect(() => {
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
       if (event.shiftKey) {
-        if (document.activeElement === first) {
+        if (document.activeElement === first || document.activeElement === modalRef.current) {
           event.preventDefault();
-          last.focus();
+          (last ?? modalRef.current).focus();
         }
       } else {
         if (document.activeElement === last) {
