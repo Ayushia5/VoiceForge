@@ -7,20 +7,25 @@ export default function Contributors() {
   const [status, setStatus] = React.useState("loading");
 
   React.useEffect(() => {
+    const controller = new AbortController();
     async function fetchContributors() {
       try {
         const res = await fetch(
-          `https://api.github.com/repos/${REPO}/contributors?per_page=100`
+          `https://api.github.com/repos/${REPO}/contributors?per_page=100`,
+          { signal: controller.signal }
         );
         if (!res.ok) throw new Error("Failed to fetch");
         const data = await res.json();
+        if (controller.signal.aborted) return;
         setContributors(data.filter((c) => c.type !== "Bot"));
         setStatus("success");
-      } catch {
+      } catch (err) {
+        if (err.name === "AbortError") return;
         setStatus("error");
       }
     }
     fetchContributors();
+    return () => controller.abort();
   }, []);
 
   return (
