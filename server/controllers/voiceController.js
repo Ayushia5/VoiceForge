@@ -1,8 +1,18 @@
 // Implements ElevenLabs voice cloning and text-to-speech proxy handlers.
 import crypto from "crypto";
 import { getIsMock } from "../utils/mock.js"; // adjust path to actual location
+import { isValidLanguageCode } from "../utils/languages.js";
 
 const ELEVENLABS_BASE_URL = "https://api.elevenlabs.io/v1";
+
+const MOCK_AUDIO_MP3 = Buffer.from(
+  "SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjYwLjE2LjEwMAAAAAAAAAAAAAAA" +
+  "//uQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8A" +
+  "AAABAAAB/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
+  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "base64"
+);
 
 const STREAM_SECRET = process.env.STREAM_SECRET ?? (() => {
   console.warn(
@@ -197,6 +207,12 @@ export async function speak(request, response, next) {
       response.status(400).json({ error: "Text too long; maximum 500 characters for streaming." });
       return;
     }
+    if (!isValidLanguageCode(language_code)) {
+      response.status(400).json({
+        error: `Unsupported language code "${language_code}". See ElevenLabs eleven_multilingual_v2 docs for supported codes.`
+      });
+      return;
+    }
 
     const expiresAt = Date.now() + 60000;
     const token = encryptToken({ text: trimmedText, voiceId: trimmedVoiceId, apiKey, language_code, voice_settings, expiresAt });
@@ -218,6 +234,15 @@ export async function streamSpeech(request, response, next) {
       return;
     }
     const { text, voiceId, apiKey, language_code, voice_settings } = decryptToken(token);
+
+    // --- mock mode: stream the bundled silent MP3 fixture ---
+    if (getIsMock()) {
+      console.warn("[VoiceForge] MOCK_ELEVENLABS: streaming mock audio");
+      response.setHeader("Content-Type", "audio/mpeg");
+      response.setHeader("Content-Length", String(MOCK_AUDIO_MP3.length));
+      response.end(MOCK_AUDIO_MP3);
+      return;
+    }
 
     const elevenResponse = await fetch(`${ELEVENLABS_BASE_URL}/text-to-speech/${voiceId}/stream`, {
       method: "POST",

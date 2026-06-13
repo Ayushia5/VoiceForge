@@ -11,12 +11,15 @@ import { QuickReplies } from "./QuickReplies";
 import { SpeechHistory } from "./SpeechHistory";
 import { ToastContainer, useToast } from "./useToast.jsx";
 import { useSpeechHistory } from "../hooks/useSpeechHistory";
+import { LanguageSelector } from "./LanguageSelector.jsx";
+import { loadLanguage, persistLanguage } from "../utils/languages.js";
 
 const MAX_CHARS = 500;
 
 export default function VoiceForge() {
   const [inputText, setInputText] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [language, setLanguage] = useState(loadLanguage);
   const [historyOpen, setHistoryOpen] = useState(false);
   const drawerRef = useRef(null);
 
@@ -44,6 +47,7 @@ export default function VoiceForge() {
 
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = language;
     utterance.rate = 0.95;
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
@@ -52,7 +56,7 @@ export default function VoiceForge() {
       showToast("Speech playback failed", "error");
     };
     window.speechSynthesis.speak(utterance);
-  }, [showToast]);
+  }, [showToast, language]);
 
   const handleSpeak = useCallback(() => {
     const text = inputText.trim();
@@ -84,20 +88,19 @@ export default function VoiceForge() {
       return;
     }
 
-    navigator.clipboard
-      .writeText(target)
-      .then(() => showToast("Copied to clipboard", "success"))
-      .catch(() => {
-        const ta = document.createElement("textarea");
-        ta.value = target;
-        ta.style.position = "absolute";
-        ta.style.opacity = "0";
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-        showToast("Copied", "success");
-      });
+    // Guard against synchronous throws (e.g. navigator.clipboard is undefined
+    // in non-secure contexts or older browsers) as well as async Promise
+    // rejections — both must surface the same actionable error toast.
+    try {
+      navigator.clipboard
+        .writeText(target)
+        .then(() => showToast("Copied to clipboard", "success"))
+        .catch(() => {
+          showToast("Copy failed — please select the text and copy manually", "error");
+        });
+    } catch {
+      showToast("Copy failed — please select the text and copy manually", "error");
+    }
   }, [inputText, showToast]);
 
   const handleQuickReply = useCallback((phrase) => {
@@ -134,6 +137,9 @@ export default function VoiceForge() {
       setAnnouncement("");
     }
   }, [charsLeft]);
+  useEffect(() => {
+    persistLanguage(language);
+  }, [language]);
 
   function getCounterColor() {
     if (charsLeft < 50)  return "text-red-500";
@@ -275,6 +281,16 @@ export default function VoiceForge() {
           </p>
 
           <VoiceQuickSettings />
+
+          <div className="flex items-center gap-2">
+            <label htmlFor="vf-language" className="text-sm font-medium text-neutral-600 dark:text-neutral-300">Language:</label>
+            <LanguageSelector
+              id="vf-language"
+              value={language}
+              onChange={setLanguage}
+              compact
+            />
+          </div>
 
           <div className="flex flex-wrap items-center gap-2">
             <button
