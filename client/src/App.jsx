@@ -102,7 +102,14 @@ export default function App() {
       <header className="border-b border-ink/10 bg-white dark:border-border dark:bg-surface">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
           {/* Logo + Title */}
-          <div className="flex items-center gap-3 min-w-0">
+          <div
+            className="flex items-center gap-3 min-w-0 cursor-pointer"
+            onClick={() => selectTab("onboarding")}
+            role="button"
+            tabIndex={0}
+            aria-label="Go to home"
+            onKeyDown={(e) => e.key === "Enter" && selectTab("onboarding")}
+          >
             <img
               src="/models/logo5.png"
               alt="VoiceForge Logo"
