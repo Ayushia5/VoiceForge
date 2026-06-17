@@ -107,7 +107,7 @@ export default function App() {
               role="button"
               tabIndex={0}
               aria-label="Go to home"
-              onKeyDown={(e) => e.key === "Enter" && selectTab("onboarding")}
+              onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && selectTab("onboarding")}
             >
               <img
                 src="/models/logo5.png"
