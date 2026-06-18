@@ -47,7 +47,7 @@ export default function Contributors() {
       )}
 
       {status === "error" && (
-        <p role="alert" className="text-sm text-yellow-600 dark:text-yellow-400">
+        <p role="alert" className="text-center text-sm text-red-500">
           Failed to load contributors. Please try again later.
         </p>
       )}
